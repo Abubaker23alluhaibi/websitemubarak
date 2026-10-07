@@ -257,6 +257,7 @@ export const LogisticsPage: React.FC = () => {
                 <th className="pb-2.5">الرمز (Code)</th>
                 <th className="pb-2.5">دولة الوصول</th>
                 <th className="pb-2.5">سعر الشحن الأساسي ($)</th>
+                <th className="pb-2.5">أجور الكمرك والتخليص ($)</th>
                 <th className="pb-2.5">رسوم إضافية (حرب / وقود)</th>
                 <th className="pb-2.5 text-left pl-2">إجراءات</th>
               </tr>
@@ -274,6 +275,9 @@ export const LogisticsPage: React.FC = () => {
                     <td className="py-3 text-slate-600 font-medium">{p.country}</td>
                     <td className="py-3 font-black text-[#164E33]">
                       {formatCurrency(p.defaultOceanCost || 1500)}
+                    </td>
+                    <td className="py-3 font-bold text-emerald-800">
+                      {p.clearanceCost !== undefined ? formatCurrency(p.clearanceCost) : '$0'}
                     </td>
                     <td className="py-3">
                       {extraCosts.length > 0 ? (

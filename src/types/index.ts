@@ -87,6 +87,7 @@ export interface Port {
   country: string;
   type: 'loading' | 'destination';
   defaultOceanCost?: number;
+  clearanceCost?: number;
   extraCosts?: ExtraCostItem[];
 }
 

@@ -1196,6 +1196,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         country: port.country,
         type: port.type,
         defaultOceanCost: port.defaultOceanCost,
+        clearanceCost: port.clearanceCost,
         extraCosts: port.extraCosts || [],
       });
       if (saved && saved.id) {
@@ -1221,6 +1222,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         country: port.country,
         type: port.type,
         defaultOceanCost: port.defaultOceanCost,
+        clearanceCost: port.clearanceCost,
         extraCosts: port.extraCosts,
       });
       if (saved) {

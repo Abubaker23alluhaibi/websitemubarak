@@ -23,6 +23,7 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
   const [country, setCountry] = useState(defaultType === 'loading' ? 'USA' : 'العراق');
   const [type, setType] = useState<'loading' | 'destination'>(defaultType);
   const [defaultOceanCost, setDefaultOceanCost] = useState('1500');
+  const [clearanceCost, setClearanceCost] = useState('0');
   const [extraCosts, setExtraCosts] = useState<ExtraCostItem[]>([]);
 
   useEffect(() => {
@@ -30,6 +31,7 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
     setCountry(defaultType === 'loading' ? 'USA' : 'العراق');
     setExtraCosts([]);
     setDefaultOceanCost(defaultType === 'loading' ? '1500' : '1500');
+    setClearanceCost(defaultType === 'destination' ? '250' : '0');
   }, [defaultType, isOpen]);
 
   const handleAddExtraCost = () => {
@@ -66,6 +68,7 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
       country: country.trim(),
       type,
       defaultOceanCost: Number(defaultOceanCost) || 1500,
+      clearanceCost: type === 'destination' ? (Number(clearanceCost) || 0) : 0,
       extraCosts: extraCosts.filter((c) => c.name.trim() && c.amount > 0),
     });
 
@@ -154,6 +157,26 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
           value={defaultOceanCost}
           onChange={(e) => setDefaultOceanCost(e.target.value)}
         />
+
+        {/* Customs & Clearance Fee for Destination Ports */}
+        {type === 'destination' && (
+          <div>
+            <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+              أجور التخليص والكمرك / الضريبة المعتمدة ($)
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="0"
+              value={clearanceCost}
+              onChange={(e) => setClearanceCost(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-[#164E33]"
+            />
+            <p className="text-[10px] text-slate-400 mt-1">
+              يتم اعتماد هذا المبلغ كرسوم كمرك وتخليص لهذا الميناء في حاسبة الشحن بدلاً من أي قيمة افتراضية.
+            </p>
+          </div>
+        )}
 
         {/* Dynamic Extra Costs Section (Port-specific fees) */}
         <div className="bg-amber-50/50 border border-amber-200/80 rounded-2xl p-3.5 space-y-3">

@@ -21,6 +21,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
     country: '',
     type: 'loading' as 'loading' | 'destination',
     defaultOceanCost: 1500,
+    clearanceCost: 0,
   });
 
   const [extraCosts, setExtraCosts] = useState<ExtraCostItem[]>([]);
@@ -33,6 +34,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
         country: port.country || '',
         type: port.type || 'loading',
         defaultOceanCost: port.defaultOceanCost ? Number(port.defaultOceanCost) : 1500,
+        clearanceCost: port.clearanceCost !== undefined ? Number(port.clearanceCost) : 0,
       });
       setExtraCosts(Array.isArray(port.extraCosts) ? [...port.extraCosts] : []);
     }
@@ -74,6 +76,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
       country: formData.country.trim(),
       type: formData.type,
       defaultOceanCost: Number(formData.defaultOceanCost) || 1500,
+      clearanceCost: formData.type === 'destination' ? (Number(formData.clearanceCost) || 0) : 0,
       extraCosts: extraCosts.filter((c) => c.name.trim() && c.amount > 0),
     };
 
@@ -128,6 +131,26 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
           value={formData.defaultOceanCost}
           onChange={(e) => setFormData({ ...formData, defaultOceanCost: Number(e.target.value) })}
         />
+
+        {/* Customs & Clearance Fee for Destination Ports */}
+        {formData.type === 'destination' && (
+          <div>
+            <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+              أجور التخليص والكمرك / الضريبة المعتمدة ($)
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="0"
+              value={formData.clearanceCost}
+              onChange={(e) => setFormData({ ...formData, clearanceCost: Number(e.target.value) || 0 })}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-[#164E33]"
+            />
+            <p className="text-[10px] text-slate-400 mt-1">
+              يتم اعتماد هذا المبلغ كرسوم كمرك وتخليص كاملة لهذا الميناء في حاسبة الشحن بدلاً من أي قيمة افتراضية.
+            </p>
+          </div>
+        )}
 
         {/* Dynamic Extra Costs Section (Port-specific fees) */}
         <div className="bg-amber-50/50 border border-amber-200/80 rounded-2xl p-3.5 space-y-3">
