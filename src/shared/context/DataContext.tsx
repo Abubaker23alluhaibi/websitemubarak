@@ -1197,8 +1197,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         type: port.type,
         defaultOceanCost: port.defaultOceanCost,
         clearanceCost: port.clearanceCost,
+        hasClearance: port.hasClearance,
         extraCosts: port.extraCosts || [],
-      });
+      } as any);
       if (saved && saved.id) {
         setPorts((prev) => prev.map((p) => (p.id === port.id ? { ...p, ...saved } : p)));
         // Auto-refresh routes since backend auto-provisioned shipping routes for this port
@@ -1223,8 +1224,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         type: port.type,
         defaultOceanCost: port.defaultOceanCost,
         clearanceCost: port.clearanceCost,
+        hasClearance: port.hasClearance,
         extraCosts: port.extraCosts,
-      });
+      } as any);
       if (saved) {
         setPorts((prev) => prev.map((p) => (p.id === port.id ? { ...p, ...saved } : p)));
         logisticsApi.getRoutes().then((rts) => {

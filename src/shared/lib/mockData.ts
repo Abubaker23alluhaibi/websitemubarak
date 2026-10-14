@@ -90,11 +90,11 @@ export const MOCK_PORTS: Port[] = [
   { id: 'port-4', name: 'Los Angeles Port (CA)', code: 'LAX', country: 'USA', type: 'loading' },
   { id: 'port-5', name: 'Miami Port (FL)', code: 'MIA', country: 'USA', type: 'loading' },
   // Destination Ports
-  { id: 'port-10', name: 'ميناء أم قصر (العراق)', code: 'UQR', country: 'Iraq', type: 'destination', clearanceCost: 300 },
-  { id: 'port-11', name: 'ميناء العقبة (الأردن)', code: 'AQB', country: 'Jordan', type: 'destination', clearanceCost: 250 },
-  { id: 'port-12', name: 'ميناء جبل علي (دبي)', code: 'JEA', country: 'UAE', type: 'destination', clearanceCost: 200 },
-  { id: 'port-13', name: 'ميناء بنغازي (ليبيا)', code: 'BEN', country: 'Libya', type: 'destination', clearanceCost: 200 },
-  { id: 'port-14', name: 'ميناء مرسين (تركيا)', code: 'MERS', country: 'Turkey', type: 'destination', clearanceCost: 250 },
+  { id: 'port-10', name: 'ميناء أم قصر (العراق)', code: 'UQR', country: 'العراق', type: 'destination', hasClearance: true, clearanceCost: 300 },
+  { id: 'port-11', name: 'ميناء العقبة (الأردن)', code: 'AQB', country: 'الأردن', type: 'destination', hasClearance: true, clearanceCost: 250 },
+  { id: 'port-12', name: 'ميناء جبل علي (دبي)', code: 'JEA', country: 'الإمارات', type: 'destination', hasClearance: false, clearanceCost: 0 },
+  { id: 'port-13', name: 'ميناء بنغازي (ليبيا)', code: 'BEN', country: 'ليبيا', type: 'destination', hasClearance: false, clearanceCost: 0 },
+  { id: 'port-14', name: 'ميناء مرسين (تركيا)', code: 'MERS', country: 'تركيا', type: 'destination', hasClearance: false, clearanceCost: 0 },
 ];
 
 export const MOCK_STATES: USState[] = [

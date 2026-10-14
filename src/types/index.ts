@@ -88,6 +88,7 @@ export interface Port {
   type: 'loading' | 'destination';
   defaultOceanCost?: number;
   clearanceCost?: number;
+  hasClearance?: boolean;
   extraCosts?: ExtraCostItem[];
 }
 

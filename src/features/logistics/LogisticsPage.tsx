@@ -276,8 +276,16 @@ export const LogisticsPage: React.FC = () => {
                     <td className="py-3 font-black text-[#164E33]">
                       {formatCurrency(p.defaultOceanCost || 1500)}
                     </td>
-                    <td className="py-3 font-bold text-emerald-800">
-                      {p.clearanceCost !== undefined ? formatCurrency(p.clearanceCost) : '$0'}
+                    <td className="py-3 font-bold">
+                      {p.hasClearance === false || (!p.hasClearance && !p.clearanceCost) ? (
+                        <span className="bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                          غير متاح (رصيف فقط)
+                        </span>
+                      ) : (
+                        <span className="text-emerald-800 font-black">
+                          {formatCurrency(p.clearanceCost || 0)}
+                        </span>
+                      )}
                     </td>
                     <td className="py-3">
                       {extraCosts.length > 0 ? (

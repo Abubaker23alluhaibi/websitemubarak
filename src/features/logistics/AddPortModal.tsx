@@ -23,15 +23,17 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
   const [country, setCountry] = useState(defaultType === 'loading' ? 'USA' : 'العراق');
   const [type, setType] = useState<'loading' | 'destination'>(defaultType);
   const [defaultOceanCost, setDefaultOceanCost] = useState('1500');
-  const [clearanceCost, setClearanceCost] = useState('0');
+  const [hasClearance, setHasClearance] = useState(defaultType === 'destination');
+  const [clearanceCost, setClearanceCost] = useState('300');
   const [extraCosts, setExtraCosts] = useState<ExtraCostItem[]>([]);
 
   useEffect(() => {
     setType(defaultType);
     setCountry(defaultType === 'loading' ? 'USA' : 'العراق');
     setExtraCosts([]);
-    setDefaultOceanCost(defaultType === 'loading' ? '1500' : '1500');
-    setClearanceCost(defaultType === 'destination' ? '250' : '0');
+    setDefaultOceanCost('1500');
+    setHasClearance(defaultType === 'destination');
+    setClearanceCost(defaultType === 'destination' ? '300' : '0');
   }, [defaultType, isOpen]);
 
   const handleAddExtraCost = () => {
@@ -68,7 +70,8 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
       country: country.trim(),
       type,
       defaultOceanCost: Number(defaultOceanCost) || 1500,
-      clearanceCost: type === 'destination' ? (Number(clearanceCost) || 0) : 0,
+      hasClearance: type === 'destination' ? hasClearance : false,
+      clearanceCost: type === 'destination' && hasClearance ? (Number(clearanceCost) || 0) : 0,
       extraCosts: extraCosts.filter((c) => c.name.trim() && c.amount > 0),
     });
 
@@ -151,30 +154,79 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
         </div>
 
         {/* Base Ocean Freight Price for auto-generated routes */}
-        <Input
-          label="سعر الشحن المبدئي للمسارات المقابلة ($)"
-          type="number"
-          value={defaultOceanCost}
-          onChange={(e) => setDefaultOceanCost(e.target.value)}
-        />
+        <div>
+          <Input
+            label="سعر الشحن البحري الأولي للمسار ($)"
+            type="number"
+            value={defaultOceanCost}
+            onChange={(e) => setDefaultOceanCost(e.target.value)}
+          />
+          <p className="text-[10px] text-slate-400 mt-1">
+            سعر مبدئي للمسارات البحرية، ويمكن تخصيص سعر أدق لكل خط ملاحي وميناء تحميل في تبويب "المسارات".
+          </p>
+        </div>
 
         {/* Customs & Clearance Fee for Destination Ports */}
         {type === 'destination' && (
-          <div>
-            <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
-              أجور التخليص والكمرك / الضريبة المعتمدة ($)
-            </label>
-            <input
-              type="number"
-              min="0"
-              placeholder="0"
-              value={clearanceCost}
-              onChange={(e) => setClearanceCost(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-[#164E33]"
-            />
-            <p className="text-[10px] text-slate-400 mt-1">
-              يتم اعتماد هذا المبلغ كرسوم كمرك وتخليص لهذا الميناء في حاسبة الشحن بدلاً من أي قيمة افتراضية.
-            </p>
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1.5">
+                خدمة التخليص الجمركي والكمرك بميناء الوصول
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHasClearance(true);
+                    if (!clearanceCost || clearanceCost === '0') setClearanceCost('300');
+                  }}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                    hasClearance
+                      ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  ✓ متوفر تخليص جمركي
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHasClearance(false);
+                    setClearanceCost('0');
+                  }}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                    !hasClearance
+                      ? 'bg-amber-700 text-white border-amber-700 shadow-xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  ✕ غير متاح (شحن رصيف فقط)
+                </button>
+              </div>
+            </div>
+
+            {hasClearance ? (
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  أجور التخليص والكمرك المعتمدة لهذا الميناء ($)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="300"
+                  value={clearanceCost}
+                  onChange={(e) => setClearanceCost(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  سيتم اعتماد هذا السعر الخاص بهذا الميناء حصراً في حاسبة الشحن.
+                </p>
+              </div>
+            ) : (
+              <div className="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-xl border border-amber-200 leading-relaxed">
+                ⚠️ التخليص الجمركي غير متاح لهذا الميناء (تسليم رصيف ميناء فقط - ولا يُضاف أي مبلغ تخليص في الحاسبة).
+              </div>
+            )}
           </div>
         )}
 
