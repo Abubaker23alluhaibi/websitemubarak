@@ -149,26 +149,20 @@ const isUuid = (str?: string): boolean =>
 export const normalizePorts = (portList: Port[]): Port[] => {
   return portList.map((p) => {
     if (p.type === 'destination') {
-      let tax = Number(p.clearanceCost || 0);
-      const isBaghdad = p.code === 'BGW' || p.name?.toLowerCase().includes('baghdad') || p.name?.includes('بغداد');
-      const isUmmQasr = p.code === 'UQR' || p.name?.includes('أم قصر');
-      const isAqaba = p.code === 'AQB' || p.name?.includes('العقبة');
-      const isJebelAli = p.code === 'JEA' || p.name?.includes('جبل علي');
-      const isMersin = p.code === 'MERS' || p.code === 'MER' || p.name?.includes('مرسين');
-
-      if (isBaghdad) {
-        tax = 600;
-      } else if (isUmmQasr) {
-        tax = 300;
-      } else if (isAqaba) {
-        tax = 250;
-      } else if (isJebelAli || isMersin) {
-        tax = 0;
-      } else if (tax === 0 && p.defaultOceanCost && Number(p.defaultOceanCost) !== 1500) {
+      let tax: number;
+      if (p.clearanceCost !== undefined && p.clearanceCost !== null) {
+        tax = Number(p.clearanceCost);
+      } else if (p.defaultOceanCost && Number(p.defaultOceanCost) !== 1500) {
         tax = Number(p.defaultOceanCost);
+      } else {
+        const isBaghdad = p.code === 'BGW' || p.name?.toLowerCase().includes('baghdad') || p.name?.includes('بغداد');
+        const isUmmQasr = p.code === 'UQR' || p.name?.includes('أم قصر');
+        const isAqaba = p.code === 'AQB' || p.name?.includes('العقبة');
+        tax = isBaghdad ? 600 : isUmmQasr ? 300 : isAqaba ? 250 : 0;
       }
 
-      const hasClr = p.hasClearance !== false && tax > 0;
+      const hasClr = p.hasClearance !== undefined ? Boolean(p.hasClearance) : tax > 0;
+
       return {
         ...p,
         defaultOceanCost: undefined, // remove ocean cost from destination port

@@ -21,7 +21,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
     country: '',
     type: 'loading' as 'loading' | 'destination',
     hasClearance: true,
-    clearanceCost: 0,
+    clearanceCost: '' as string | number,
   });
 
   const [extraCosts, setExtraCosts] = useState<ExtraCostItem[]>([]);
@@ -35,7 +35,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
         country: port.country || '',
         type: port.type || 'loading',
         hasClearance: portHasClearance,
-        clearanceCost: port.clearanceCost !== undefined ? Number(port.clearanceCost) : 0,
+        clearanceCost: port.clearanceCost !== undefined ? String(port.clearanceCost) : '0',
       });
       setExtraCosts(Array.isArray(port.extraCosts) ? [...port.extraCosts] : []);
     }
@@ -141,6 +141,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
                     setFormData((prev) => ({
                       ...prev,
                       hasClearance: true,
+                      clearanceCost: Number(prev.clearanceCost) > 0 ? prev.clearanceCost : '600',
                     }));
                   }}
                   className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
@@ -157,7 +158,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
                     setFormData((prev) => ({
                       ...prev,
                       hasClearance: false,
-                      clearanceCost: 0,
+                      clearanceCost: '0',
                     }));
                   }}
                   className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
@@ -181,7 +182,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
                   min="0"
                   placeholder="600"
                   value={formData.clearanceCost}
-                  onChange={(e) => setFormData({ ...formData, clearanceCost: Number(e.target.value) || 0 })}
+                  onChange={(e) => setFormData({ ...formData, clearanceCost: e.target.value })}
                   className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
