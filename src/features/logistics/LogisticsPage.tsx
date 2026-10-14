@@ -177,7 +177,7 @@ export const LogisticsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 1. LOADING PORTS LIST (أمريكا) */}
+      {/* 1. LOADING PORTS LIST (أمريكا - تسجيل الموانئ فقط) */}
       {activeTab === 'loading_ports' && (
         <div className="bg-[#F9FBFA] border border-slate-100 rounded-2xl p-4 overflow-x-auto">
           <table className="w-full text-right text-xs">
@@ -186,14 +186,11 @@ export const LogisticsPage: React.FC = () => {
                 <th className="pb-2.5 pr-2">ميناء التحميل (USA)</th>
                 <th className="pb-2.5">الرمز (Code)</th>
                 <th className="pb-2.5">الدولة</th>
-                <th className="pb-2.5">سعر الشحن الأساسي ($)</th>
-                <th className="pb-2.5">رسوم إضافية (حرب / وقود)</th>
                 <th className="pb-2.5 text-left pl-2">إجراءات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100/80">
               {filteredLoadingPorts.map((p) => {
-                const extraCosts = Array.isArray(p.extraCosts) ? p.extraCosts : [];
                 return (
                   <tr key={p.id} className="hover:bg-white/80 transition-colors">
                     <td className="py-3 pr-2 font-bold text-slate-800 flex items-center gap-2">
@@ -202,31 +199,12 @@ export const LogisticsPage: React.FC = () => {
                     </td>
                     <td className="py-3 font-mono font-bold text-slate-700">{p.code}</td>
                     <td className="py-3 text-slate-600">{p.country}</td>
-                    <td className="py-3 font-black text-[#164E33]">
-                      {formatCurrency(p.defaultOceanCost || 1500)}
-                    </td>
-                    <td className="py-3">
-                      {extraCosts.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {extraCosts.map((ec, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-amber-100 text-amber-900 border border-amber-300/80 px-2 py-0.5 rounded-lg text-[10px] font-bold"
-                            >
-                              {ec.name}: ${ec.amount}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 text-[11px]">-</span>
-                      )}
-                    </td>
                     <td className="py-3 text-left pl-2">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => setPortToEdit(p)}
                           className="text-emerald-700 hover:text-emerald-900 p-1 hover:bg-emerald-50 rounded-md transition-colors"
-                          title="تعديل الميناء والأسعار"
+                          title="تعديل الميناء"
                         >
                           <Edit3 className="w-3.5 h-3.5 inline" />
                         </button>
@@ -247,7 +225,7 @@ export const LogisticsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. DESTINATION PORTS LIST (الوصول الدولي) */}
+      {/* 2. DESTINATION PORTS LIST (موانئ الوصول والتفريغ الدولي - تشمل فقط الضريبة والكمرك) */}
       {activeTab === 'dest_ports' && (
         <div className="bg-[#F9FBFA] border border-slate-100 rounded-2xl p-4 overflow-x-auto">
           <table className="w-full text-right text-xs">
@@ -256,8 +234,7 @@ export const LogisticsPage: React.FC = () => {
                 <th className="pb-2.5 pr-2">ميناء الوصول والتفريغ</th>
                 <th className="pb-2.5">الرمز (Code)</th>
                 <th className="pb-2.5">دولة الوصول</th>
-                <th className="pb-2.5">سعر الشحن الأساسي ($)</th>
-                <th className="pb-2.5">أجور الكمرك والتخليص ($)</th>
+                <th className="pb-2.5">الضريبة والكمرك / التخليص ($)</th>
                 <th className="pb-2.5">رسوم إضافية (حرب / وقود)</th>
                 <th className="pb-2.5 text-left pl-2">إجراءات</th>
               </tr>
@@ -273,16 +250,13 @@ export const LogisticsPage: React.FC = () => {
                     </td>
                     <td className="py-3 font-mono font-bold text-slate-700">{p.code}</td>
                     <td className="py-3 text-slate-600 font-medium">{p.country}</td>
-                    <td className="py-3 font-black text-[#164E33]">
-                      {formatCurrency(p.defaultOceanCost || 1500)}
-                    </td>
                     <td className="py-3 font-bold">
                       {p.hasClearance === false || (!p.hasClearance && !p.clearanceCost) ? (
                         <span className="bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-lg text-[10px] font-bold">
                           غير متاح (رصيف فقط)
                         </span>
                       ) : (
-                        <span className="text-emerald-800 font-black">
+                        <span className="text-emerald-800 font-black text-xs">
                           {formatCurrency(p.clearanceCost || 0)}
                         </span>
                       )}

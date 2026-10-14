@@ -146,6 +146,47 @@ const getStoredData = <T,>(key: string, fallback: T): T => {
 const isUuid = (str?: string): boolean =>
   Boolean(str && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str));
 
+export const normalizePorts = (portList: Port[]): Port[] => {
+  return portList.map((p) => {
+    if (p.type === 'destination') {
+      let tax = Number(p.clearanceCost || 0);
+      const isBaghdad = p.code === 'BGW' || p.name?.toLowerCase().includes('baghdad') || p.name?.includes('بغداد');
+      const isUmmQasr = p.code === 'UQR' || p.name?.includes('أم قصر');
+      const isAqaba = p.code === 'AQB' || p.name?.includes('العقبة');
+      const isJebelAli = p.code === 'JEA' || p.name?.includes('جبل علي');
+      const isMersin = p.code === 'MERS' || p.code === 'MER' || p.name?.includes('مرسين');
+
+      if (isBaghdad) {
+        tax = 600;
+      } else if (isUmmQasr) {
+        tax = 300;
+      } else if (isAqaba) {
+        tax = 250;
+      } else if (isJebelAli || isMersin) {
+        tax = 0;
+      } else if (tax === 0 && p.defaultOceanCost && Number(p.defaultOceanCost) !== 1500) {
+        tax = Number(p.defaultOceanCost);
+      }
+
+      const hasClr = p.hasClearance !== false && tax > 0;
+      return {
+        ...p,
+        defaultOceanCost: undefined, // remove ocean cost from destination port
+        clearanceCost: hasClr ? tax : 0,
+        hasClearance: hasClr,
+      };
+    } else {
+      // Loading port: Pure registration only
+      return {
+        ...p,
+        defaultOceanCost: undefined,
+        clearanceCost: undefined,
+        hasClearance: false,
+      };
+    }
+  });
+};
+
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(() =>
     getStoredData(STORAGE_KEYS.USERS, MOCK_USERS)
@@ -165,15 +206,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [containers, setContainers] = useState<Container[]>(() =>
     getStoredData(STORAGE_KEYS.CONTAINERS, MOCK_CONTAINERS)
   );
-  const [ports, setPorts] = useState<Port[]>(() =>
-    getStoredData(STORAGE_KEYS.PORTS, MOCK_PORTS)
-  );
+  const [ports, setPorts] = useState<Port[]>(() => {
+    const raw = getStoredData(STORAGE_KEYS.PORTS, MOCK_PORTS);
+    const mergedMap = new Map<string, Port>();
+    MOCK_PORTS.forEach((p) => mergedMap.set(p.id, p));
+    raw.forEach((p) => mergedMap.set(p.id, { ...mergedMap.get(p.id), ...p }));
+    return normalizePorts(Array.from(mergedMap.values()));
+  });
   const [states, setStates] = useState<USState[]>(() =>
     getStoredData(STORAGE_KEYS.STATES, MOCK_STATES)
   );
-  const [routes, setRoutes] = useState<ShippingRoute[]>(() =>
-    getStoredData(STORAGE_KEYS.ROUTES, MOCK_ROUTES)
-  );
+  const [routes, setRoutes] = useState<ShippingRoute[]>(() => {
+    const raw = getStoredData(STORAGE_KEYS.ROUTES, MOCK_ROUTES);
+    const routeMap = new Map<string, ShippingRoute>();
+    MOCK_ROUTES.forEach((r) => routeMap.set(`${r.loadingPortId}_${r.destinationPortId}`, r));
+    raw.forEach((r) => routeMap.set(`${r.loadingPortId}_${r.destinationPortId}`, r));
+    return Array.from(routeMap.values());
+  });
   const [defaultCommissionRate, setDefaultCommissionRate] = useState<number>(() =>
     getStoredData(STORAGE_KEYS.COMMISSION_RATE, 1.5)
   );
@@ -239,7 +288,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       let connected = false;
       if (portsRes && Array.isArray(portsRes) && portsRes.length > 0) {
-        setPorts(portsRes);
+        setPorts(normalizePorts(portsRes));
         connected = true;
       }
       if (statesRes && Array.isArray(statesRes) && statesRes.length > 0) {
@@ -1188,50 +1237,48 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Logistics Actions
   const addPort = async (port: Port): Promise<Port> => {
-    setPorts((prev) => [port, ...prev]);
+    const normalized = normalizePorts([port])[0];
+    setPorts((prev) => [normalized, ...prev]);
     try {
       const saved = await logisticsApi.createPort({
-        name: port.name,
-        code: port.code,
-        country: port.country,
-        type: port.type,
-        defaultOceanCost: port.defaultOceanCost,
-        clearanceCost: port.clearanceCost,
-        hasClearance: port.hasClearance,
-        extraCosts: port.extraCosts || [],
+        name: normalized.name,
+        code: normalized.code,
+        country: normalized.country,
+        type: normalized.type,
+        clearanceCost: normalized.clearanceCost || 0,
+        hasClearance: normalized.hasClearance,
+        extraCosts: normalized.extraCosts || [],
       } as any);
       if (saved && saved.id) {
-        setPorts((prev) => prev.map((p) => (p.id === port.id ? { ...p, ...saved } : p)));
-        // Auto-refresh routes since backend auto-provisioned shipping routes for this port
+        const savedNormalized = normalizePorts([{ ...normalized, ...saved }])[0];
+        setPorts((prev) => prev.map((p) => (p.id === normalized.id ? savedNormalized : p)));
         logisticsApi.getRoutes().then((rts) => {
           if (Array.isArray(rts) && rts.length > 0) setRoutes(rts);
         }).catch(() => {});
-        return { ...port, ...saved };
+        return savedNormalized;
       }
     } catch (err) {
       console.warn('Backend createPort failed:', err);
     }
-    return port;
+    return normalized;
   };
 
   const updatePort = async (port: Port): Promise<void> => {
-    setPorts((prev) => prev.map((p) => (p.id === port.id ? port : p)));
+    const normalized = normalizePorts([port])[0];
+    setPorts((prev) => prev.map((p) => (p.id === port.id ? normalized : p)));
     try {
       const saved = await logisticsApi.updatePort(port.id, {
-        name: port.name,
-        code: port.code,
-        country: port.country,
-        type: port.type,
-        defaultOceanCost: port.defaultOceanCost,
-        clearanceCost: port.clearanceCost,
-        hasClearance: port.hasClearance,
-        extraCosts: port.extraCosts,
+        name: normalized.name,
+        code: normalized.code,
+        country: normalized.country,
+        type: normalized.type,
+        clearanceCost: normalized.clearanceCost || 0,
+        hasClearance: normalized.hasClearance,
+        extraCosts: normalized.extraCosts,
       } as any);
       if (saved) {
-        setPorts((prev) => prev.map((p) => (p.id === port.id ? { ...p, ...saved } : p)));
-        logisticsApi.getRoutes().then((rts) => {
-          if (Array.isArray(rts) && rts.length > 0) setRoutes(rts);
-        }).catch(() => {});
+        const savedNormalized = normalizePorts([{ ...normalized, ...saved }])[0];
+        setPorts((prev) => prev.map((p) => (p.id === port.id ? savedNormalized : p)));
       }
     } catch (err) {
       console.warn('Backend updatePort failed:', err);

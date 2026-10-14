@@ -22,18 +22,16 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
   const [code, setCode] = useState('');
   const [country, setCountry] = useState(defaultType === 'loading' ? 'USA' : 'العراق');
   const [type, setType] = useState<'loading' | 'destination'>(defaultType);
-  const [defaultOceanCost, setDefaultOceanCost] = useState('1500');
   const [hasClearance, setHasClearance] = useState(defaultType === 'destination');
-  const [clearanceCost, setClearanceCost] = useState('300');
+  const [clearanceCost, setClearanceCost] = useState('600');
   const [extraCosts, setExtraCosts] = useState<ExtraCostItem[]>([]);
 
   useEffect(() => {
     setType(defaultType);
     setCountry(defaultType === 'loading' ? 'USA' : 'العراق');
     setExtraCosts([]);
-    setDefaultOceanCost('1500');
     setHasClearance(defaultType === 'destination');
-    setClearanceCost(defaultType === 'destination' ? '300' : '0');
+    setClearanceCost(defaultType === 'destination' ? '600' : '0');
   }, [defaultType, isOpen]);
 
   const handleAddExtraCost = () => {
@@ -69,7 +67,7 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
       code: code.trim().toUpperCase(),
       country: country.trim(),
       type,
-      defaultOceanCost: Number(defaultOceanCost) || 1500,
+      defaultOceanCost: undefined,
       hasClearance: type === 'destination' ? hasClearance : false,
       clearanceCost: type === 'destination' && hasClearance ? (Number(clearanceCost) || 0) : 0,
       extraCosts: extraCosts.filter((c) => c.name.trim() && c.amount > 0),
@@ -153,18 +151,6 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
           </div>
         </div>
 
-        {/* Base Ocean Freight Price for auto-generated routes */}
-        <div>
-          <Input
-            label="سعر الشحن البحري الأولي للمسار ($)"
-            type="number"
-            value={defaultOceanCost}
-            onChange={(e) => setDefaultOceanCost(e.target.value)}
-          />
-          <p className="text-[10px] text-slate-400 mt-1">
-            سعر مبدئي للمسارات البحرية، ويمكن تخصيص سعر أدق لكل خط ملاحي وميناء تحميل في تبويب "المسارات".
-          </p>
-        </div>
 
         {/* Customs & Clearance Fee for Destination Ports */}
         {type === 'destination' && (
@@ -178,7 +164,6 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
                   type="button"
                   onClick={() => {
                     setHasClearance(true);
-                    if (!clearanceCost || clearanceCost === '0') setClearanceCost('300');
                   }}
                   className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
                     hasClearance
@@ -186,7 +171,7 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  ✓ متوفر تخليص جمركي
+                  ✓ متوفر تخليص جمركي وكمرك
                 </button>
                 <button
                   type="button"
@@ -208,18 +193,18 @@ export const AddPortModal: React.FC<AddPortModalProps> = ({
             {hasClearance ? (
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  أجور التخليص والكمرك المعتمدة لهذا الميناء ($)
+                  الضريبة والكمرك لميناء الوصول ($)
                 </label>
                 <input
                   type="number"
                   min="0"
-                  placeholder="300"
+                  placeholder="600"
                   value={clearanceCost}
                   onChange={(e) => setClearanceCost(e.target.value)}
                   className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  سيتم اعتماد هذا السعر الخاص بهذا الميناء حصراً في حاسبة الشحن.
+                  سيتم اعتماد هذا المبلغ كضريبة وكمرك رسمية لميناء الوصول في حاسبة الشحن.
                 </p>
               </div>
             ) : (

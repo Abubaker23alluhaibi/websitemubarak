@@ -84,12 +84,14 @@ export const MOCK_USERS: User[] = [
 ];
 
 export const MOCK_PORTS: Port[] = [
+  // Loading Ports (تسجيل موانئ التحميل الأمريكية فقط بدون أسعار)
   { id: 'port-1', name: 'Savannah Port (GA)', code: 'SAV', country: 'USA', type: 'loading' },
   { id: 'port-2', name: 'New Jersey / NY Port (NJ)', code: 'NYC', country: 'USA', type: 'loading' },
   { id: 'port-3', name: 'Houston Port (TX)', code: 'HOU', country: 'USA', type: 'loading' },
   { id: 'port-4', name: 'Los Angeles Port (CA)', code: 'LAX', country: 'USA', type: 'loading' },
   { id: 'port-5', name: 'Miami Port (FL)', code: 'MIA', country: 'USA', type: 'loading' },
-  // Destination Ports
+  // Destination Ports (موانئ الوصول: يشمل تسجيل الميناء والضريبة والكمرك المعتمدة للميناء)
+  { id: 'port-15', name: 'بغداد - baghdad', code: 'BGW', country: 'العراق', type: 'destination', hasClearance: true, clearanceCost: 600 },
   { id: 'port-10', name: 'ميناء أم قصر (العراق)', code: 'UQR', country: 'العراق', type: 'destination', hasClearance: true, clearanceCost: 300 },
   { id: 'port-11', name: 'ميناء العقبة (الأردن)', code: 'AQB', country: 'الأردن', type: 'destination', hasClearance: true, clearanceCost: 250 },
   { id: 'port-12', name: 'ميناء جبل علي (دبي)', code: 'JEA', country: 'الإمارات', type: 'destination', hasClearance: false, clearanceCost: 0 },
@@ -109,10 +111,22 @@ export const MOCK_STATES: USState[] = [
 ];
 
 export const MOCK_ROUTES: ShippingRoute[] = [
+  // From Savannah (SAV)
   { id: 'r-1', loadingPortId: 'port-1', destinationPortId: 'port-10', oceanFreightCost: 1500, estimatedDays: 25 },
+  { id: 'r-1b', loadingPortId: 'port-1', destinationPortId: 'port-15', oceanFreightCost: 1500, estimatedDays: 28 },
+  { id: 'r-1c', loadingPortId: 'port-1', destinationPortId: 'port-11', oceanFreightCost: 1400, estimatedDays: 22 },
+  // From Houston (HOU)
   { id: 'r-2', loadingPortId: 'port-3', destinationPortId: 'port-10', oceanFreightCost: 1550, estimatedDays: 28 },
-  { id: 'r-3', loadingPortId: 'port-4', destinationPortId: 'port-11', oceanFreightCost: 1400, estimatedDays: 30 },
-  { id: 'r-4', loadingPortId: 'port-5', destinationPortId: 'port-12', oceanFreightCost: 1300, estimatedDays: 22 },
+  { id: 'r-2b', loadingPortId: 'port-3', destinationPortId: 'port-15', oceanFreightCost: 1550, estimatedDays: 30 },
+  // From Los Angeles (LAX)
+  { id: 'r-3', loadingPortId: 'port-4', destinationPortId: 'port-11', oceanFreightCost: 1550, estimatedDays: 30 },
+  { id: 'r-3b', loadingPortId: 'port-4', destinationPortId: 'port-10', oceanFreightCost: 1650, estimatedDays: 32 },
+  { id: 'r-3c', loadingPortId: 'port-4', destinationPortId: 'port-15', oceanFreightCost: 1650, estimatedDays: 35 },
+  // From New York / New Jersey (NYC)
+  { id: 'r-4a', loadingPortId: 'port-2', destinationPortId: 'port-10', oceanFreightCost: 1500, estimatedDays: 26 },
+  { id: 'r-4b', loadingPortId: 'port-2', destinationPortId: 'port-15', oceanFreightCost: 1500, estimatedDays: 28 },
+  // From Miami (MIA)
+  { id: 'r-5', loadingPortId: 'port-5', destinationPortId: 'port-12', oceanFreightCost: 1300, estimatedDays: 22 },
 ];
 
 export const MOCK_CARS: Car[] = [

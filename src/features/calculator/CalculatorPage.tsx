@@ -46,8 +46,6 @@ export const CalculatorPage: React.FC = () => {
     ? Number(matchedRoute.oceanFreightCost)
     : anyRouteToDest
     ? Number(anyRouteToDest.oceanFreightCost)
-    : activeDestPort?.defaultOceanCost
-    ? Number(activeDestPort.defaultOceanCost)
     : 1500;
 
   let vehicleSurcharge = 0;
@@ -218,7 +216,7 @@ export const CalculatorPage: React.FC = () => {
               const hasClr = p.hasClearance !== false && Number(p.clearanceCost || 0) > 0;
               return (
                 <option key={p.id} value={p.id}>
-                  {p.name} ({p.country}) {hasClr ? `- كمرك: $${p.clearanceCost}` : '- بدون تخليص'}
+                  {p.name} ({p.country}) {hasClr ? `- الضريبة والكمرك: $${p.clearanceCost}` : '- بدون تخليص/ضريبة'}
                 </option>
               );
             })}
@@ -249,7 +247,7 @@ export const CalculatorPage: React.FC = () => {
                 className="rounded text-[#164E33] focus:ring-[#164E33] w-4 h-4 cursor-pointer"
               />
               <span>
-                احتساب رسوم الميناء والتخليص الجمركي لميناء ({activeDestPort?.name}):{' '}
+                احتساب الضريبة والكمرك لميناء ({activeDestPort?.name}):{' '}
                 <strong className="text-emerald-800">+{formatCurrency(portClearanceFee)}</strong>
               </span>
             </label>
@@ -260,10 +258,10 @@ export const CalculatorPage: React.FC = () => {
             <Info className="w-4 h-4 text-slate-400 shrink-0" />
             <div className="flex-1">
               <span className="font-bold text-slate-700 block text-[11px]">
-                التخليص الجمركي والكمرك: غير متوفر لهذا الميناء
+                الضريبة والتخليص الجمركي: غير متوفر لهذا الميناء
               </span>
               <span className="text-[10px] text-slate-500">
-                الشحن لميناء ({activeDestPort?.name}) يتم بنظام تسليم رصيف الميناء (Port-to-Port)، والتخليص على عاتق المستلم (الرسوم المضافة: $0).
+                الشحن لميناء ({activeDestPort?.name}) يتم بنظام تسليم رصيف الميناء (Port-to-Port)، والتخليص والضريبة على عاتق المستلم (الرسوم المضافة: $0).
               </span>
             </div>
           </div>
@@ -308,7 +306,7 @@ export const CalculatorPage: React.FC = () => {
 
           <div className="flex justify-between items-center text-slate-600 pb-1.5 border-b border-slate-100">
             <span className="font-medium">
-              رسوم التخليص والكمرك بالميناء ({activeDestPort?.name}):
+              الضريبة والكمرك لميناء ({activeDestPort?.name}):
             </span>
             <span className="font-bold text-slate-800">
               {portHasClearance ? (
@@ -337,7 +335,7 @@ export const CalculatorPage: React.FC = () => {
             <div>
               <span className="font-black text-slate-900 text-sm">المجموع الإجمالي الشامل:</span>
               <p className="text-[10px] text-slate-400">
-                يشمل النقل الداخلي، الشحن البحري، {appliedClearanceCost > 0 ? 'التخليص والكمرك، ' : ''}والرسوم المعتمدة
+                يشمل النقل الداخلي، الشحن البحري، {appliedClearanceCost > 0 ? 'الضريبة والكمرك، ' : ''}والرسوم المعتمدة
               </p>
             </div>
             <span className="text-xl font-black text-[#164E33]">{formatCurrency(totalFinalShipping)}</span>
@@ -352,7 +350,7 @@ export const CalculatorPage: React.FC = () => {
                 صافي التكلفة الشاملة المعتمدة
               </span>
               <h3 className="text-base font-black text-white">
-                الشحن النهائي الكامل {appliedClearanceCost > 0 ? 'مع الكمرك والتخليص' : 'بدون تخليص'}
+                الشحن النهائي الكامل {appliedClearanceCost > 0 ? 'شامل الضريبة والكمرك' : 'بدون ضريبة/كمرك'}
               </h3>
             </div>
             <div className="text-right sm:text-left">

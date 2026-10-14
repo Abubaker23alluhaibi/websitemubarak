@@ -20,7 +20,6 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
     code: '',
     country: '',
     type: 'loading' as 'loading' | 'destination',
-    defaultOceanCost: 1500,
     hasClearance: true,
     clearanceCost: 0,
   });
@@ -35,7 +34,6 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
         code: port.code || '',
         country: port.country || '',
         type: port.type || 'loading',
-        defaultOceanCost: port.defaultOceanCost ? Number(port.defaultOceanCost) : 1500,
         hasClearance: portHasClearance,
         clearanceCost: port.clearanceCost !== undefined ? Number(port.clearanceCost) : 0,
       });
@@ -78,7 +76,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
       code: formData.code.trim().toUpperCase(),
       country: formData.country.trim(),
       type: formData.type,
-      defaultOceanCost: Number(formData.defaultOceanCost) || 1500,
+      defaultOceanCost: undefined,
       hasClearance: formData.type === 'destination' ? formData.hasClearance : false,
       clearanceCost: formData.type === 'destination' && formData.hasClearance ? (Number(formData.clearanceCost) || 0) : 0,
       extraCosts: extraCosts.filter((c) => c.name.trim() && c.amount > 0),
@@ -128,18 +126,6 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
           />
         </div>
 
-        {/* Base Ocean Freight Price */}
-        <div>
-          <Input
-            label="سعر الشحن البحري الأولي للمسار ($)"
-            type="number"
-            value={formData.defaultOceanCost}
-            onChange={(e) => setFormData({ ...formData, defaultOceanCost: Number(e.target.value) })}
-          />
-          <p className="text-[10px] text-slate-400 mt-1">
-            سعر مبدئي للمسارات البحرية، ويمكن تخصيص سعر أدق لكل خط ملاحي وميناء تحميل في تبويب "المسارات".
-          </p>
-        </div>
 
         {/* Customs & Clearance Fee for Destination Ports */}
         {formData.type === 'destination' && (
@@ -155,7 +141,6 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
                     setFormData((prev) => ({
                       ...prev,
                       hasClearance: true,
-                      clearanceCost: prev.clearanceCost > 0 ? prev.clearanceCost : 300,
                     }));
                   }}
                   className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center ${
@@ -164,7 +149,7 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  ✓ متوفر تخليص جمركي
+                  ✓ متوفر تخليص جمركي وكمرك
                 </button>
                 <button
                   type="button"
@@ -189,18 +174,18 @@ export const EditPortModal: React.FC<EditPortModalProps> = ({ isOpen, onClose, p
             {formData.hasClearance ? (
               <div>
                 <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  أجور التخليص والكمرك المعتمدة لهذا الميناء ($)
+                  الضريبة والكمرك لميناء الوصول ($)
                 </label>
                 <input
                   type="number"
                   min="0"
-                  placeholder="300"
+                  placeholder="600"
                   value={formData.clearanceCost}
                   onChange={(e) => setFormData({ ...formData, clearanceCost: Number(e.target.value) || 0 })}
                   className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-700"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  يتم اعتماد هذا المبلغ كرسوم كمرك وتخليص كاملة لهذا الميناء في حاسبة الشحن.
+                  يتم اعتماد هذا المبلغ كضريبة وكمرك رسمية لميناء الوصول في حاسبة الشحن.
                 </p>
               </div>
             ) : (
