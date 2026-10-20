@@ -3,7 +3,13 @@
  * Automatically injects JWT Bearer tokens and Idempotency keys.
  */
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '/api/v1';
+const rawEnvUrl = (import.meta as any).env?.VITE_API_URL;
+const DEFAULT_API_URL = 'https://almubarakserver-production.up.railway.app/api/v1';
+
+// If env is empty or still pointing to old dead backend, force use the new live backend
+export const API_BASE_URL = (!rawEnvUrl || rawEnvUrl.includes('carship-backend-production'))
+  ? DEFAULT_API_URL
+  : rawEnvUrl;
 
 export interface ApiResponse<T = any> {
   status: 'success' | 'fail' | 'error';

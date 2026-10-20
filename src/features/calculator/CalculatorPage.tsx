@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useData } from '../../shared/context/DataContext';
 import { formatCurrency } from '../../shared/lib/formatters';
-import { RefreshCw, Calculator, CheckCircle2, ShieldAlert, Ship, Info } from 'lucide-react';
+import { RefreshCw, Calculator, CheckCircle2, Ship } from 'lucide-react';
 
 export const CalculatorPage: React.FC = () => {
   const { states, ports, routes, refreshFromBackend } = useData();
@@ -17,7 +17,7 @@ export const CalculatorPage: React.FC = () => {
     () => destPorts[0]?.id || ''
   );
   const [vehicleType, setVehicleType] = useState<'sedan' | 'suv' | 'heavy'>('sedan');
-  const [includeClearance, setIncludeClearance] = useState<boolean>(true);
+  const includeClearance = true;
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Active selections
@@ -178,7 +178,7 @@ export const CalculatorPage: React.FC = () => {
             >
               {states.map((st) => (
                 <option key={st.id} value={st.id}>
-                  {st.name} ({st.code}) - سحب: ${Number(st.inlandCost || (st as any).towingCostAvg || 350)}
+                  {st.name} ({st.code})
                 </option>
               ))}
             </select>
@@ -212,14 +212,11 @@ export const CalculatorPage: React.FC = () => {
             onChange={(e) => setSelectedDestPortId(e.target.value)}
             className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-[#164E33]"
           >
-            {destPorts.map((p) => {
-              const hasClr = p.hasClearance !== false && Number(p.clearanceCost || 0) > 0;
-              return (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.country}) {hasClr ? `- الضريبة والكمرك: $${p.clearanceCost}` : '- بدون تخليص/ضريبة'}
-                </option>
-              );
-            })}
+            {destPorts.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} ({p.country})
+              </option>
+            ))}
           </select>
         </div>
 
@@ -236,142 +233,32 @@ export const CalculatorPage: React.FC = () => {
           </span>
         </div>
 
-        {/* 4. Customs Clearance & Port Fee Section */}
-        {portHasClearance ? (
-          <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 transition-all">
-            <label className="text-[11px] font-semibold text-slate-700 cursor-pointer flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={includeClearance}
-                onChange={(e) => setIncludeClearance(e.target.checked)}
-                className="rounded text-[#164E33] focus:ring-[#164E33] w-4 h-4 cursor-pointer"
-              />
-              <span>
-                احتساب الضريبة والكمرك لميناء ({activeDestPort?.name}):{' '}
-                <strong className="text-emerald-800">+{formatCurrency(portClearanceFee)}</strong>
-              </span>
-            </label>
-            <span className="text-[10px] text-slate-400 font-medium">اختياري</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/90 rounded-xl p-3 text-xs text-slate-600">
-            <Info className="w-4 h-4 text-slate-400 shrink-0" />
-            <div className="flex-1">
-              <span className="font-bold text-slate-700 block text-[11px]">
-                الضريبة والتخليص الجمركي: غير متوفر لهذا الميناء
-              </span>
-              <span className="text-[10px] text-slate-500">
-                الشحن لميناء ({activeDestPort?.name}) يتم بنظام تسليم رصيف الميناء (Port-to-Port)، والتخليص والضريبة على عاتق المستلم (الرسوم المضافة: $0).
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Dynamic Extra Costs Surcharges (War/Fuel) */}
-        {allExtraCosts.length > 0 && (
-          <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-3 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-amber-900 font-bold text-[11px]">
-              <ShieldAlert className="w-4 h-4 text-amber-700 shrink-0" />
-              <span>رسوم وتكاليف إضافية معتمدة لهذا المسار / الميناء:</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 pt-0.5">
-              {allExtraCosts.map((ec) => (
-                <span
-                  key={ec.id || ec.name}
-                  className="bg-white border border-amber-300 text-amber-950 font-bold px-2.5 py-1 rounded-xl text-xs flex items-center gap-1"
-                >
-                  <span>{ec.name}:</span>
-                  <span className="text-amber-800">+{formatCurrency(ec.amount)}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 5. Detailed Breakdown Summary */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 space-y-2 text-xs">
-          <div className="flex justify-between items-center text-slate-600 pb-1.5 border-b border-slate-100">
-            <span className="font-medium">
-              النقل الداخلي الأمريكي ({activeState?.name || 'الولاية'} ← {activeLoadingPort?.code}):
-            </span>
-            <span className="font-bold text-slate-800">{formatCurrency(inlandCost)}</span>
-          </div>
-
-          <div className="flex justify-between items-center text-slate-600 pb-1.5 border-b border-slate-100">
-            <span className="font-medium">
-              الشحن البحري الدولي ({activeLoadingPort?.code || 'تحميل'} ← {activeDestPort?.name || 'وصول'}):
-            </span>
-            <span className="font-bold text-slate-800">{formatCurrency(oceanCost)}</span>
-          </div>
-
-          <div className="flex justify-between items-center text-slate-600 pb-1.5 border-b border-slate-100">
-            <span className="font-medium">
-              الضريبة والكمرك لميناء ({activeDestPort?.name}):
-            </span>
-            <span className="font-bold text-slate-800">
-              {portHasClearance ? (
-                includeClearance ? (
-                  formatCurrency(portClearanceFee)
-                ) : (
-                  <span className="text-slate-400 font-normal">تم استثناؤه ($0)</span>
-                )
-              ) : (
-                <span className="text-slate-400 font-normal">غير متوفر ($0)</span>
-              )}
-            </span>
-          </div>
-
-          {allExtraCosts.map((ec) => (
-            <div key={ec.id || ec.name} className="flex justify-between items-center text-amber-900 bg-amber-50/70 px-2.5 py-1 rounded-lg">
-              <span className="flex items-center gap-1">
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-600 inline" />
-                {ec.name}:
-              </span>
-              <span className="font-bold">+{formatCurrency(ec.amount)}</span>
-            </div>
-          ))}
-
-          <div className="flex justify-between items-center pt-2">
+        {/* Grand Result Highlight Card */}
+        <div className="bg-gradient-to-br from-[#164E33] to-[#0E3523] rounded-2xl p-6 text-white shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-800/80 pb-4">
             <div>
-              <span className="font-black text-slate-900 text-sm">المجموع الإجمالي الشامل:</span>
-              <p className="text-[10px] text-slate-400">
-                يشمل النقل الداخلي، الشحن البحري، {appliedClearanceCost > 0 ? 'الضريبة والكمرك، ' : ''}والرسوم المعتمدة
-              </p>
-            </div>
-            <span className="text-xl font-black text-[#164E33]">{formatCurrency(totalFinalShipping)}</span>
-          </div>
-        </div>
-
-        {/* 6. Grand Result Highlight Card */}
-        <div className="bg-gradient-to-br from-[#164E33] to-[#0E3523] rounded-2xl p-5 text-white shadow-md space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-800/80 pb-3">
-            <div>
-              <span className="text-emerald-300 text-[11px] font-bold block mb-0.5">
+              <span className="text-emerald-300 text-xs font-bold block mb-1">
                 صافي التكلفة الشاملة المعتمدة
               </span>
-              <h3 className="text-base font-black text-white">
-                الشحن النهائي الكامل {appliedClearanceCost > 0 ? 'شامل الضريبة والكمرك' : 'بدون ضريبة/كمرك'}
+              <h3 className="text-lg font-black text-white">
+                الشحن النهائي الكامل {appliedClearanceCost > 0 ? 'مع الكمرك' : ''}
               </h3>
             </div>
             <div className="text-right sm:text-left">
-              <span className="text-3xl font-black text-emerald-300 tracking-tight block">
+              <span className="text-3xl sm:text-4xl font-black text-emerald-300 tracking-tight block">
                 {formatCurrency(totalFinalShipping)}
               </span>
-              <span className="text-[10px] text-emerald-200/90 font-bold">
-                المبلغ الإجمالي الصافي (USD)
+              <span className="text-[11px] text-emerald-200/90 font-bold">
+                المبلغ الإجمالي الكامل الصافي (USD)
               </span>
             </div>
           </div>
 
-          <div className="flex items-start gap-2 text-emerald-100/95 text-xs leading-relaxed">
+          <div className="flex items-start gap-2.5 text-emerald-100/95 text-xs leading-relaxed">
             <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
             <span>
-              تم احتساب الشحن البحري بناءً على المسار الملاحي ({activeLoadingPort?.name} ← {activeDestPort?.name})
-              {appliedClearanceCost > 0
-                ? ` مع إضافة رسم التخليص والكمرك الخاص بميناء (${activeDestPort?.name}) بمبلغ $${portClearanceFee}.`
-                : portHasClearance
-                ? ' بدون احتساب التخليص الجمركي بناءً على اختيارك.'
-                : ' علماً أن هذا الميناء تسليم رصيف ميناء ولا يتوفر له تخليص جمركي.'}
+              السعر أعلاه يمثل التكلفة الإجمالية الكاملة لشحن السيارة من ولاية ({activeState?.name}) إلى ({activeDestPort?.name})
+              {appliedClearanceCost > 0 ? ' شاملاً كافة الرسوم والكمرك.' : '.'}
             </span>
           </div>
         </div>
