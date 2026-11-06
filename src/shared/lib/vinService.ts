@@ -1,7 +1,7 @@
 /**
  * VIN Decoder & Federal Vehicle Verification Service
  * Integrates with NHTSA vPIC API (National Highway Traffic Safety Administration)
- * and NMVTIS (National Motor Vehicle Title Information System) specifications.
+ * Vehicle history is not provided by this decoder.
  */
 
 export interface VinDecodedData {
@@ -29,12 +29,12 @@ export interface VinDecodedData {
   rawErrorCode?: string;
   rawErrorText?: string;
   titleCheck?: {
-    cleanTitle: boolean;
-    floodDamage: boolean;
-    salvageOrTotalLoss: boolean;
-    odometerStatus: 'ACTUAL' | 'EXEMPT' | 'TAMPERED';
-    recordedMiles?: number;
-    accidentHistoryCount: number;
+    cleanTitle: boolean | null;
+    floodDamage: boolean | null;
+    salvageOrTotalLoss: boolean | null;
+    odometerStatus: 'ACTUAL' | 'EXEMPT' | 'TAMPERED' | null;
+    recordedMiles?: number | null;
+    accidentHistoryCount: number | null;
     nmvtisVerified: boolean;
   };
 }
@@ -96,16 +96,11 @@ export async function decodeVinFromNHTSA(vin: string): Promise<VinDecodedData> {
     const model = getField('Model');
     const modelYear = parseInt(getField('Model Year'), 10) || new Date().getFullYear();
 
-    // فحص سجل NMVTIS الافتراضي أو المعتمد
-    const isSalvageAuctionSample = cleanVin.endsWith('12345');
+    // No vehicle history provider is connected. Unknown is not a clean result.
     const titleCheck = {
-      cleanTitle: !isSalvageAuctionSample,
-      floodDamage: false,
-      salvageOrTotalLoss: isSalvageAuctionSample,
-      odometerStatus: 'ACTUAL' as const,
-      recordedMiles: Math.floor(15000 + (parseInt(cleanVin.slice(-4), 16) || 25000) % 45000),
-      accidentHistoryCount: isSalvageAuctionSample ? 1 : 0,
-      nmvtisVerified: true,
+      cleanTitle: null, floodDamage: null, salvageOrTotalLoss: null,
+      odometerStatus: null, recordedMiles: null, accidentHistoryCount: null,
+      nmvtisVerified: false,
     };
 
     return {

@@ -10,11 +10,8 @@ import {
   Copy,
   Check,
   Car as CarIcon,
-  FileText,
   PlusCircle,
   Info,
-  Gauge,
-  AlertOctagon,
 } from 'lucide-react';
 import {
   decodeVinFromNHTSA,
@@ -111,15 +108,15 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
   const handleCopySpecs = () => {
     if (!decodedData) return;
     const text = `
-تقرير فحص الشاصي الفيدرالي (NHTSA):
+تقرير مواصفات الشاصي (NHTSA):
 رقم الشاصي: ${decodedData.vin}
 المركبة: ${decodedData.make} ${decodedData.model} (${decodedData.year})
 الفئة والهيكل: ${decodedData.bodyClass || 'N/A'} - ${decodedData.trim || ''}
 المحرك: ${decodedData.displacementL ? decodedData.displacementL + 'L' : ''} (${decodedData.engineCylinders || ''} سلندر)
-نوع الوقود: ${decodedData.fuelType || 'بنزين'}
-بلد الصنع: ${decodedData.plantCountry || 'الولايات المتحدة'} - ${decodedData.plantState || ''}
+نوع الوقود: ${decodedData.fuelType || 'غير متوفر'}
+بلد الصنع: ${decodedData.plantCountry || 'غير متوفر'} - ${decodedData.plantState || ''}
 المصنع: ${decodedData.manufacturerName || ''}
-توثيق العنوان: سليم (Clean Title) - خالي من الغرق
+سجل الملكية والغرق والشطب والممشى والحوادث: غير متوفر، لم يتم التحقق عبر NMVTIS
     `.trim();
 
     navigator.clipboard.writeText(text);
@@ -145,7 +142,7 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="فاحص وتدقيق الشاصي ورقم اللوت (NHTSA & NMVTIS)"
+      title="مواصفات الشاصي ورقم اللوت (NHTSA)"
       maxWidth="3xl"
     >
       <div className="space-y-4 dir-rtl text-right text-xs">
@@ -239,7 +236,7 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
         {/* Decoded Content */}
         {decodedData && (
           <div className="space-y-4">
-            {/* Federal Seal Verified Header */}
+            {/* Manufacturing specifications header */}
             <div className="bg-gradient-to-l from-emerald-900 to-[#164E33] text-white p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center shrink-0">
@@ -251,7 +248,7 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
                       {decodedData.make} {decodedData.model} {decodedData.year}
                     </h3>
                     <span className="bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                      مطابق رسمياً NHTSA
+                      مواصفات NHTSA
                     </span>
                   </div>
                   <p className="text-emerald-100 text-[11px] mt-0.5 font-mono">
@@ -309,7 +306,7 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>تدقيق العنوان والحوادث (NMVTIS)</span>
+                <span>سجل المركبة (غير متوفر)</span>
               </button>
             </div>
 
@@ -324,13 +321,13 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
 
                   <div className="bg-slate-50 border border-slate-200/70 p-3 rounded-xl">
                     <span className="text-slate-400 text-[10px] block font-medium">فئة الهيكل (Body Class)</span>
-                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.bodyClass || 'سيدان'}</span>
+                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.bodyClass || 'غير متوفر'}</span>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200/70 p-3 rounded-xl">
                     <span className="text-slate-400 text-[10px] block font-medium">حجم وسعة المحرك</span>
                     <span className="text-slate-800 font-bold text-xs mt-0.5 block">
-                      {decodedData.displacementL ? `${decodedData.displacementL} L` : 'كهربائي / هجين'}
+                      {decodedData.displacementL ? `${decodedData.displacementL} L` : 'غير متوفر'}
                     </span>
                   </div>
 
@@ -343,22 +340,22 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
 
                   <div className="bg-slate-50 border border-slate-200/70 p-3 rounded-xl">
                     <span className="text-slate-400 text-[10px] block font-medium">نوع الوقود</span>
-                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.fuelType || 'بنزين (Gasoline)'}</span>
+                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.fuelType || 'غير متوفر'}</span>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200/70 p-3 rounded-xl">
                     <span className="text-slate-400 text-[10px] block font-medium">بلد الصنع والتجميع</span>
-                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.plantCountry || 'الولايات المتحدة'}</span>
+                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.plantCountry || 'غير متوفر'}</span>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200/70 p-3 rounded-xl">
                     <span className="text-slate-400 text-[10px] block font-medium">ولاية المصنع</span>
-                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.plantState || decodedData.plantCity || 'Kentucky / Ohio'}</span>
+                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.plantState || decodedData.plantCity || 'غير متوفر'}</span>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200/70 p-3 rounded-xl">
                     <span className="text-slate-400 text-[10px] block font-medium">نظام الدفع (Drive Type)</span>
-                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.driveType || 'FWD / AWD'}</span>
+                    <span className="text-slate-800 font-bold text-xs mt-0.5 block">{decodedData.driveType || 'غير متوفر'}</span>
                   </div>
                 </div>
 
@@ -366,98 +363,19 @@ export const VinInspectorModal: React.FC<VinInspectorModalProps> = ({
                 <div className="bg-emerald-50/60 border border-emerald-200/80 rounded-xl p-3 flex items-start gap-2.5">
                   <Info className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                   <div className="text-[11px] text-emerald-900 leading-relaxed">
-                    <strong className="font-bold">مفيد لحساب الشحن واللوجستيات:</strong> تم فك فئة المركبة رسمياً كـ (
-                    {decodedData.bodyClass || 'Sedan'}
-                    ). هذا التصنيف يضمن احتساب تسعيرة النقل الداخلي الدقيقة (Inland Towing) دون مفاجآت في ساحات التحميل، وتحديد أبعاد الحاوية المناسبة بدقة 100%.
+                    <strong className="font-bold">معلومات لحساب الشحن:</strong> يمكن الاستعانة بالمواصفات المصنعية لتقدير الشحن، وتحتاج التكلفة والأبعاد إلى تأكيد شركة الشحن.
                   </div>
                 </div>
               </div>
             )}
 
-            {/* TAB 2: NMVTIS AUDIT */}
             {activeTab === 'nmvtis' && (
-              <div className="space-y-3">
-                <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-xs">
-                          سجل العنوان ونظام NMVTIS الفيدرالي التابع لوزارة العدل الأمريكية
-                        </h4>
-                        <p className="text-slate-500 text-[10px]">
-                          National Motor Vehicle Title Information System (DOJ)
-                        </p>
-                      </div>
-                    </div>
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      سليم ومطابق
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                    {/* Clean Title */}
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
-                      <div>
-                        <span className="text-slate-400 text-[10px] block">حالة ملكية العنوان</span>
-                        <span className="font-bold text-emerald-700 text-xs mt-0.5 block">
-                          {decodedData.titleCheck?.cleanTitle ? 'عنوان سليم (Clean Title)' : 'شطب مزاد (Salvage Title)'}
-                        </span>
-                      </div>
-                      {decodedData.titleCheck?.cleanTitle ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      ) : (
-                        <AlertOctagon className="w-4 h-4 text-amber-500" />
-                      )}
-                    </div>
-
-                    {/* Flood Damage */}
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
-                      <div>
-                        <span className="text-slate-400 text-[10px] block">سجل أضرار الغرق والسيول</span>
-                        <span className="font-bold text-emerald-700 text-xs mt-0.5 block">
-                          خالية من الغرق (No Flood)
-                        </span>
-                      </div>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    </div>
-
-                    {/* Odometer */}
-                    <div className="bg-white p-3 rounded-xl border border-slate-200 flex items-center justify-between">
-                      <div>
-                        <span className="text-slate-400 text-[10px] block">توثيق العداد (Odometer)</span>
-                        <span className="font-bold text-slate-800 text-xs mt-0.5 block">
-                          عداد حقيقي موثق (Actual)
-                        </span>
-                      </div>
-                      <Gauge className="w-4 h-4 text-blue-600" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Carfax / Full Accident Add-on Banner */}
-                <div className="border border-blue-200 bg-blue-50/50 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <FileText className="w-5 h-5 text-blue-600 shrink-0" />
-                    <div>
-                      <span className="font-bold text-slate-800 text-xs block">
-                        طلب التقرير الكامل للأضرار والحوادث المفصلة (Carfax / ClearVin)
-                      </span>
-                      <span className="text-slate-500 text-[10px]">
-                        تقرير PDF مفصل يشمل صور الحوادث في أمريكا وتاريخ الصيانة وعدد المالكين السابقين.
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => alert(`تم إرسال طلب استخراج تقرير Carfax المفصل لرقم الشاصي: ${decodedData.vin}`)}
-                    className="border-blue-300 text-blue-700 hover:bg-blue-100/50 text-xs h-8 shrink-0 px-3 font-semibold"
-                  >
-                    طلب تقرير الحوادث الشامل ($3)
-                  </Button>
-                </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                <h4 className="font-bold text-slate-800">سجل المركبة غير متوفر</h4>
+                <p className="text-slate-600 leading-relaxed">
+                  فحص NHTSA يعرض المواصفات المصنعية فقط. لم يتم التحقق من حالة الملكية أو الغرق أو الشطب أو الممشى أو الحوادث عبر NMVTIS.
+                </p>
+                <p className="text-slate-600">عدم توفر السجل لا يعني سلامة المركبة أو خلوها من الحوادث. خدمة طلب التقارير غير متاحة حالياً.</p>
               </div>
             )}
           </div>

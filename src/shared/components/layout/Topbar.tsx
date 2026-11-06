@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
-import { UserRole, Car } from '../../../types';
+import { Car } from '../../../types';
 import { VinInspectorModal } from '../../../features/cars/VinInspectorModal';
 import { CarDetailsModal } from '../../../features/cars/CarDetailsModal';
 
@@ -27,7 +27,7 @@ export const Topbar: React.FC<TopbarProps> = ({
   searchValue = '',
   onSearchChange,
 }) => {
-  const { user, switchDemoRole } = useAuth();
+  const { user } = useAuth();
   const { cars } = useData();
 
   const [internalSearch, setInternalSearch] = useState(searchValue);
@@ -291,18 +291,6 @@ export const Topbar: React.FC<TopbarProps> = ({
           <span className="sm:hidden">NHTSA</span>
         </button>
 
-        {/* Subtle Role Switcher - visible on md+, on mobile available inside drawer */}
-        <select
-          value={user?.role || 'super_admin'}
-          onChange={(e) => switchDemoRole(e.target.value as UserRole)}
-          className="hidden md:inline-block bg-[#F7F9F8] border border-slate-200/60 text-[11px] font-medium text-slate-600 rounded-full px-2.5 py-1.5 outline-none cursor-pointer"
-        >
-          <option value="super_admin">سوبر أدمن</option>
-          <option value="admin">أدمن</option>
-          <option value="staff">موظف</option>
-          <option value="exchange_agent">صرافة</option>
-          <option value="customer">عميل</option>
-        </select>
 
         {/* Dark Green Capsule CTA Button (Staff/Admin only) */}
         {onOpenNewCarModal && user?.role !== 'customer' && (

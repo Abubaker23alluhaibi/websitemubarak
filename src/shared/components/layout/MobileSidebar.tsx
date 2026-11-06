@@ -31,7 +31,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   onClose,
   onOpenNewCarModal,
 }) => {
-  const { user, logout, switchDemoRole } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const role = user?.role;
 
@@ -220,21 +220,6 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             </nav>
           </div>
 
-          {/* Quick Demo Role Switcher */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1.5">
-            <span className="text-[10px] font-bold text-white/60 block">تبديل دور المستخدم (تجريبي):</span>
-            <select
-              value={user?.role || 'super_admin'}
-              onChange={(e) => switchDemoRole(e.target.value as UserRole)}
-              className="w-full bg-[#164E33] border border-white/20 text-xs text-white rounded-xl px-2.5 py-1.5 outline-none cursor-pointer"
-            >
-              <option value="super_admin">سوبر أدمن (Super Admin)</option>
-              <option value="admin">مدير النظام (Admin)</option>
-              <option value="staff">موظف عمليات (Staff)</option>
-              <option value="exchange_agent">وكيل صرافة (Agent)</option>
-              <option value="customer">عميل مشترٍ (Customer)</option>
-            </select>
-          </div>
         </div>
 
         {/* Footer Logout Button */}

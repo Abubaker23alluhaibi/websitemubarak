@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole } from '../../types';
+import { User } from '../../types';
 
-import { useData } from './DataContext';
 import { authApi } from '../api';
 
 interface AuthContextType {
@@ -16,15 +15,12 @@ interface AuthContextType {
     phone?: string;
     email?: string;
   }) => Promise<User>;
-  switchDemoRole: (role: UserRole) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { users, registerCustomer } = useData();
-
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('carship_user');
     const token = localStorage.getItem('carship_token');
@@ -48,6 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('carship_token');
     }
   }, [user]);
+
+  useEffect(() => {
+    const handleSessionChange = () => {
+      if (!localStorage.getItem('carship_token')) setUser(null);
+    };
+    window.addEventListener('carship_auth_change', handleSessionChange);
+    return () => window.removeEventListener('carship_auth_change', handleSessionChange);
+  }, []);
 
   const login = async (username: string, password?: string): Promise<User> => {
     setIsLoading(true);
@@ -95,65 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }): Promise<User> => {
     setIsLoading(true);
     try {
-      try {
-        const res = await authApi.register({
-          ...customerData,
-          password: customerData.password || 'Customer@2026!',
-        });
-        const token = res?.accessToken || res?.token;
-        if (token) {
-          localStorage.setItem('carship_token', token);
-        }
-        if (res?.user) {
-          const registeredUser: User = {
-            id: res.user.id,
-            fullName: res.user.fullName,
-            username: res.user.username,
-            role: res.user.role,
-            phone: res.user.phone || customerData.phone || '',
-            email: res.user.email || customerData.email || '',
-            isActive: res.user.isActive,
-            createdAt: res.user.createdAt,
-          };
-          setUser(registeredUser);
-          setIsLoading(false);
-          window.dispatchEvent(new Event('carship_auth_change'));
-          return registeredUser;
-        }
-      } catch (e) {
-        console.warn('Backend registration failed, using local registration fallback:', e);
-      }
-      const newUser = await registerCustomer(customerData);
-      setUser(newUser);
-      setIsLoading(false);
+      if (!customerData.password) throw new Error('يرجى إدخال كلمة المرور');
+      const res = await authApi.register(customerData);
+      const token = res?.accessToken || res?.token;
+      if (!token || !res.user) throw new Error('تعذر إنشاء جلسة للحساب الجديد');
+      localStorage.setItem('carship_token', token);
+      setUser(res.user);
       window.dispatchEvent(new Event('carship_auth_change'));
-      return newUser;
-    } catch (err) {
+      return res.user;
+    } finally {
       setIsLoading(false);
-      throw err;
     }
-  };
-
-  const switchDemoRole = async (role: UserRole) => {
-    const usernameMap: Record<UserRole, { username: string; pass: string }> = {
-      super_admin: { username: 'super.admin', pass: 'Admin@2026!' },
-      admin: { username: 'ali.admin', pass: 'Admin@2026!' },
-      staff: { username: 'hussein.staff', pass: 'Staff@2026!' },
-      exchange_agent: { username: 'amana.exchange', pass: 'Agent@2026!' },
-      customer: { username: 'omar.customer', pass: 'Customer@2026!' },
-    };
-    const target = usernameMap[role];
-    if (target) {
-      try {
-        await login(target.username, target.pass);
-        return;
-      } catch {
-        // Continue to fallback
-      }
-    }
-    const targetUser = users.find((u) => u.role === role) || users[0];
-    setUser(targetUser);
-    window.dispatchEvent(new Event('carship_auth_change'));
   };
 
   const logout = () => {
@@ -171,7 +127,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
-        switchDemoRole,
         logout,
       }}
     >

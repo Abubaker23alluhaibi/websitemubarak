@@ -440,7 +440,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addUser = (newUser: User) => {
     setUsers((prev) => [newUser, ...prev]);
-    const pass = newUser.password || (newUser as any).temporaryPassword || (newUser.role === 'customer' ? '123456' : 'Staff@2026!');
+    const pass = newUser.password || (newUser as any).temporaryPassword;
     usersApi.create({
       fullName: newUser.fullName,
       username: newUser.username,
@@ -604,7 +604,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
               fullName: newCustomer.fullName,
               username: newCustomer.username,
               role: 'customer',
-              password: 'Customer@2026!',
               phone: newCustomer.phone,
               email: newCustomer.email,
             });
@@ -707,7 +706,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: newCustomer.email,
         phone: newCustomer.phone,
         role: 'customer',
-        password: 'Customer@2026!',
       }).then((savedUser) => {
         const realUserId = savedUser?.id;
         if (realUserId) {

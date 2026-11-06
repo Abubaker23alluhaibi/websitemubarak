@@ -64,47 +64,16 @@ export async function apiClient<T = any>(
     headers['Idempotency-Key'] = generateIdempotencyKey();
   }
 
-  let response = await fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers,
   });
 
-  // If unauthorized (e.g. stale or expired token from local development), auto-recover or clear
-  if (response.status === 401 && !(options.headers as any)?.['X-Auth-Retry']) {
-    try {
-      const loginUrl = `${API_BASE_URL}/auth/login`;
-      const authRes = await fetch(loginUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'superadmin', password: 'Admin@2026!' }),
-      });
-      if (authRes.ok) {
-        const authData = await authRes.json();
-        const newToken = authData?.data?.accessToken || authData?.data?.tokens?.accessToken;
-        if (newToken) {
-          localStorage.setItem('carship_token', newToken);
-          if (authData?.data?.user) {
-            localStorage.setItem('carship_user', JSON.stringify(authData.data.user));
-          }
-          headers['Authorization'] = `Bearer ${newToken}`;
-          response = await fetch(url, {
-            ...options,
-            headers: {
-              ...headers,
-              'X-Auth-Retry': '1',
-            },
-          });
-        }
-      } else {
-        localStorage.removeItem('carship_token');
-        localStorage.removeItem('carship_user');
-        window.dispatchEvent(new Event('carship_auth_change'));
-      }
-    } catch {
-      localStorage.removeItem('carship_token');
-      localStorage.removeItem('carship_user');
-      window.dispatchEvent(new Event('carship_auth_change'));
-    }
+  // Never change identity to recover a failed request. Ignore stale sessions.
+  if (response.status === 401 && token && localStorage.getItem('carship_token') === token) {
+    localStorage.removeItem('carship_token');
+    localStorage.removeItem('carship_user');
+    window.dispatchEvent(new Event('carship_auth_change'));
   }
 
   const contentType = response.headers.get('content-type');

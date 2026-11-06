@@ -44,7 +44,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
     email: '',
     phone: '',
     role: 'staff' as UserRole,
-    temporaryPassword: 'CarShip@2026',
+    temporaryPassword: '',
   });
 
   const [allowedPages, setAllowedPages] = useState<AppPageKey[]>([
@@ -107,7 +107,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
         mustChangePassword: true,
         createdAt: new Date().toISOString().split('T')[0],
         permissions: newPermissions,
-        password: formData.temporaryPassword || 'Staff@2026!',
+        password: formData.temporaryPassword,
       } as any);
       setIsLoading(false);
       onClose();

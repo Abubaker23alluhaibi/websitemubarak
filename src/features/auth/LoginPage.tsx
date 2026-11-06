@@ -67,7 +67,7 @@ export const LoginPage: React.FC = () => {
         username: regUsername.trim().toLowerCase(),
         phone: regPhone.trim(),
         email: regEmail.trim(),
-        password: regPassword || '123456',
+        password: regPassword,
       });
 
       setSuccessMsg('تم إنشاء حسابك بنجاح! جاري توجيهك لكراج سياراتك...');
@@ -81,13 +81,6 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const demoAccounts = [
-    { label: 'سوبر أدمن', user: 'superadmin', pass: 'Admin@2026!' },
-    { label: 'أدمن تشغيلي', user: 'ali.admin', pass: 'Admin@2026!' },
-    { label: 'موظف متابعة', user: 'hussein.staff', pass: 'Staff@2026!' },
-    { label: 'مكتب صرافة', user: 'amana.exchange', pass: 'Agent@2026!' },
-    { label: 'عميل', user: 'omar.customer', pass: 'Customer@2026!' },
-  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#EBF3EE] p-4 dir-rtl text-right font-sans">
@@ -260,27 +253,6 @@ export const LoginPage: React.FC = () => {
           </form>
         )}
 
-        {/* Quick Demo Switch */}
-        <div className="pt-3 border-t border-slate-100 space-y-2">
-          <span className="text-[10px] text-slate-400 block text-center">دخول سريع للتجربة (أدوار النظام):</span>
-          <div className="flex flex-wrap gap-1.5 justify-center">
-            {demoAccounts.map((acc) => (
-              <button
-                key={acc.user}
-                type="button"
-                onClick={() => {
-                  setAuthMode('login');
-                  setUsername(acc.user);
-                  setPassword(acc.pass);
-                  handleLogin(undefined, acc.user, acc.pass);
-                }}
-                className="bg-[#F7F9F8] hover:bg-slate-100 border border-slate-200/60 text-[10px] font-semibold text-slate-700 px-2.5 py-1 rounded-full transition-all"
-              >
-                {acc.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
